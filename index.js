@@ -102,8 +102,21 @@ class Yahtze {
           }
         }
         
+        
         return score;
-      }
+    }
+
+    scoreCategory(category) {
+        const score = this.calculateScore(category);
+        this.scorecard[category] = score;
+
+        if (category === 'yahtzee' && score > 0) {
+            this.scorecard.yahtzeeBonus += 100;
+        }
+
+        this.remainingRolls = 3;
+        return score;
+    }
 }
 
 module.exports = Yahtze;
