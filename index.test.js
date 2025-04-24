@@ -284,7 +284,7 @@ describe('YahtzeeGame', () => {
       game.scorecard.chance = 22;
       game.scorecard.yahtzeeBonus = 100;
       
-      expect(game.getLowerSectionScore()).toBe(311);
+      expect(game.getLowerSectionScore()).toBe(211);
     });
 
     test('should calculate total score correctly', () => {

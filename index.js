@@ -117,6 +117,31 @@ class Yahtze {
         this.remainingRolls = 3;
         return score;
     }
+
+    isGameFinished() {
+        return Object.values(this.scorecard).every(score => score !== null);
+    }
+
+    getUpperSectionScore() {
+        return Object.keys(this.scorecard)
+            .filter(key => ['ones', 'twos', 'threes', 'fours', 'fives', 'sixes'].includes(key))
+            .reduce((total, key) => total + (this.scorecard[key] || 0), 0);
+    }
+
+    getUpperSectionBonus() {
+        const upperSectionScore = this.getUpperSectionScore();
+        return upperSectionScore >= 63 ? 35 : 0;
+    }
+
+    getLowerSectionScore() {
+        return Object.keys(this.scorecard)
+            .filter(key => ['threeOfAKind', 'fourOfAKind', 'fullHouse', 'smallStraight', 'largeStraight', 'yahtzee', 'chance'].includes(key))
+            .reduce((total, key) => total + (this.scorecard[key] || 0), 0);
+    }
+
+    getTotalScore() {
+        return this.getUpperSectionScore() + this.getUpperSectionBonus() + this.getLowerSectionScore() + this.scorecard.yahtzeeBonus;
+    }
 }
 
 module.exports = Yahtze;
