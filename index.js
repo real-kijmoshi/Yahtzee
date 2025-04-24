@@ -43,6 +43,7 @@ class Yahtze {
         
         const counts = {};
         let sum = 0;
+        let score = 0;
         
         for (const die of this.dice) {
           counts[die] = (counts[die] || 0) + 1;
@@ -55,44 +56,53 @@ class Yahtze {
         const upperCategories = {ones: 1, twos: 2, threes: 3, fours: 4, fives: 5, sixes: 6};
         if (category in upperCategories) {
           const value = upperCategories[category];
-          return (counts[value] || 0) * value;
-        }
-        
-        switch (category) {
-          case 'threeOfAKind':
-            return countValues.some(count => count >= 3) ? sum : 0;
-            
-          case 'fourOfAKind':
-            return countValues.some(count => count >= 4) ? sum : 0;
-            
-          case 'fullHouse':
-            return countValues.length === 2 && countValues.includes(2) && countValues.includes(3) ? 25 : 0;
-            
-          case 'smallStraight': {
-            if (uniqueValues.length >= 4) {
-              for (let i = 0; i <= uniqueValues.length - 4; i++) {
-                if (uniqueValues[i+3] - uniqueValues[i] === 3) {
-                  return 30;
+          score = (counts[value] || 0) * value;
+        } else {
+          switch (category) {
+            case 'threeOfAKind':
+              score = countValues.some(count => count >= 3) ? sum : 0;
+              break;
+              
+            case 'fourOfAKind':
+              score = countValues.some(count => count >= 4) ? sum : 0;
+              break;
+              
+            case 'fullHouse':
+              score = countValues.length === 2 && countValues.includes(2) && countValues.includes(3) ? 25 : 0;
+              break;
+                  
+            case 'smallStraight': {
+              if (uniqueValues.length >= 4) {
+                for (let i = 0; i <= uniqueValues.length - 4; i++) {
+                  if (uniqueValues[i+3] - uniqueValues[i] === 3) {
+                      this.scorecard.yahtzeeBonus += 100;
+                      score = 30;
+                      break;
+                  }
                 }
               }
+              break;
             }
-            return 0;
+              
+            case 'largeStraight': {
+              score = (uniqueValues.length === 5 && uniqueValues[4] - uniqueValues[0] === 4) ? 40 : 0;
+              break;
+            }
+              
+            case 'yahtzee':
+              score = countValues.includes(5) ? 50 : 0;
+              break;
+              
+            case 'chance':
+              score = sum; 
+              break;
+              
+            default:
+              throw new Error(`Unknown category: ${category}`);
           }
-            
-          case 'largeStraight': {
-           return (uniqueValues.length === 5 && 
-                    uniqueValues[4] - uniqueValues[0] === 4) ? 40 : 0;
-          }
-            
-          case 'yahtzee':
-            return countValues.includes(5) ? 50 : 0;
-            
-          case 'chance':
-            return sum;
-            
-          default:
-            throw new Error(`Unknown category: ${category}`);
         }
+        
+        return score;
       }
 }
 
