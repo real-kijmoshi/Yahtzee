@@ -94,7 +94,7 @@ class Yahtze {
               break;
               
             case 'chance':
-              score = sum; 
+              score = sum;
               break;
               
             default:
