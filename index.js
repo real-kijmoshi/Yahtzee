@@ -38,28 +38,62 @@ class Yahtze {
 
     calculateScore(category) {
         if (this.scorecard[category] !== null) {
-            throw new Error('Category already scored');
+          throw new Error('Category already scored');
         }
-
-        const translated = {
-            ones: 1,
-            twos: 2,
-            threes: 3,
-            fours: 4,
-            fives: 5,
-            sixes: 6,
-        }[category];
-
-        let score = 0;
-        this.dice.forEach((die) => {
-            if (die === translated) {
-                score += die;
-            }
-        })
         
-
-        return score;
-    }
+        const counts = {};
+        let sum = 0;
+        
+        for (const die of this.dice) {
+          counts[die] = (counts[die] || 0) + 1;
+          sum += die;
+        }
+        
+        const countValues = Object.values(counts);
+        const uniqueValues = Object.keys(counts).map(Number).sort((a, b) => a - b);
+        
+        const upperCategories = {ones: 1, twos: 2, threes: 3, fours: 4, fives: 5, sixes: 6};
+        if (category in upperCategories) {
+          const value = upperCategories[category];
+          return (counts[value] || 0) * value;
+        }
+        
+        switch (category) {
+          case 'threeOfAKind':
+            return countValues.some(count => count >= 3) ? sum : 0;
+            
+          case 'fourOfAKind':
+            return countValues.some(count => count >= 4) ? sum : 0;
+            
+          case 'fullHouse':
+            return countValues.length === 2 && countValues.includes(2) && countValues.includes(3) ? 25 : 0;
+            
+          case 'smallStraight': {
+            if (uniqueValues.length >= 4) {
+              for (let i = 0; i <= uniqueValues.length - 4; i++) {
+                if (uniqueValues[i+3] - uniqueValues[i] === 3) {
+                  return 30;
+                }
+              }
+            }
+            return 0;
+          }
+            
+          case 'largeStraight': {
+           return (uniqueValues.length === 5 && 
+                    uniqueValues[4] - uniqueValues[0] === 4) ? 40 : 0;
+          }
+            
+          case 'yahtzee':
+            return countValues.includes(5) ? 50 : 0;
+            
+          case 'chance':
+            return sum;
+            
+          default:
+            throw new Error(`Unknown category: ${category}`);
+        }
+      }
 }
 
 module.exports = Yahtze;
